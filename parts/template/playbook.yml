@@ -1,0 +1,98 @@
+- hosts webservers
+  vars:
+    home: /home/user1
+    user:
+      name: user1
+      password: pass1
+      mail: user1@domain.com
+      id: userid
+
+  vars_prompt:
+    - name: version
+      prompt: "インストールアプリのバージョンを指定してください"
+      encrypt: sha512_crypt
+      confirm: yes
+      private: no
+
+  vars_files:
+    - vars.yml
+
+  remote_user: username
+  sudo: yes
+  tasks:
+
+    - apt: name="{{item}}" state=present
+      with_items:
+        - software-properties-common
+        - nano
+        - git
+        - nodejs
+        - npm
+
+    - npm: name=n path=/usr/local/lib/node_modules
+
+    - shell: "node --version"
+      register: node_version
+
+    - block:
+      - shell: "n {{version.node}}"
+      - file: src=/usr/local/bin/node dest=/usr/bin/node state=link force=yes
+      when: version.node not in node_version.stdout
+
+    - git_config: name=user.name scope=global value="{{user.name}}"
+    - git_config: name=user.email scope=global value="{{user.email}}"
+
+    - block:
+      - copy: src=~/my/backsetting/netrc dest="{{home}}/.netrc"
+      - git: repo="https://github.com/{{user.id}}/batch" dest="{{home}}/my"
+      - lineinfile: dest="{{home}}/.bashrc" line="{{item}}" state=present
+        with_items:
+          - 'export LANG=ja_JP.UTF-8'
+          - 'source xsSetenv $HOME/.userenv'
+      - shell: "{{item}}"
+        with_items:
+          - "{{home}}/my/exe ssh recover"
+      become: no
+
+    - apt: name="{{item}}" state=present
+      with_items:
+        - python-pip
+        - python3-pip
+        - docker.io
+        - cairo-dock
+        - shellcheck
+
+    - npm: name="{{item}}" path=/usr/local/lib/node_modules state=present
+      with_items:
+        - forever
+        - eslint
+
+    - shell: dpkg-query -W atom
+      register: atom_check
+      ignore_errors: yes
+    - block:
+      - apt_repository: repo=ppa:webupd8team/atom state=present
+      - apt: name={{item}} state=present
+        with_items:
+          - libxss1
+          - libcanberra-gtk-module
+          - libcanberra-gtk3-module
+      when: atom_check.rc == 1
+
+    - include: incfile.yml
+
+  handlers:
+    handler1
+    handler2
+
+- name: task1
+  yum: name=httpd state=present
+  notify:
+    - restart httpd
+
+- name: task2
+  command: /sbin/start
+
+
+- name: restart httpd
+  service: name=httpd state=restarted

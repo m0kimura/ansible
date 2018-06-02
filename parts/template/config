@@ -1,0 +1,17 @@
+##
+#ssh-copy-id -i ~/.ssh/id_rsa.pub <user name>@<ip address>:
+#
+#
+Host  www.webserver.net
+    HostName        www.webserver.net
+    Port            22
+    IdentityFile    ~/.ssh/sshkey1.pem
+    User            ubuntu
+    Protocol        2
+
+Host raspberry
+    HostName        raspberry
+    Port            22
+    IdentityFile    ~/.ssh/sshkey2.pem
+    User            pi
+    Protocol        2

@@ -1,0 +1,43 @@
+#!/bin/bash
+#> @module lex
+#> ** lex ansibleのローカルコマンド
+null=
+##
+  cmd=$1
+  if [[ ! -e ./ansible/ansible.cfg ]]; then
+    cp /usr/src/template/ansible.cfg ./ansible/ansible.cfg
+  fi
+#> setup コンフィグ関係をセットアップします。 template/hosts/ssh
+#>     @param {String} $2 セットアップ対象(template/hosts/ssh)
+  if [[ $cmd = 'setup' ]]; then
+    member=$2
+    if [[ ${member} = "$null" ]]; then
+      echo "第２パラメタにmemberを指定してください。 (template)"
+    elif [[ ${member} = "template" ]]; then
+      cp -rfa /usr/src/template/* ./ansible
+    elif [[ ${member} = "hosts" ]]; then
+      sudo cp ./ansible/hosts /etc/ansible/hosts
+    elif [[ ${member} = "ssh" ]]; then
+      sudo cp ./ansible/config ~/.ssh/config
+    fi
+#> ping すべての対象サーバーをpingでライブチェック
+  elif [[ ${cmd} = "ping" ]]; then
+    cd ansible
+    ansible all -m ping
+#> syntax yaml定義体の文法チェック playbook.yml
+#>     @param {String} $2 対象定義体
+  elif [[ ${cmd} = "syntax" ]]; then
+    file=$2
+    cd ansible
+    ansible-playbook ./${file} --syntax-check
+    ansible-playbook ./${file} --list-hosts
+#> play yaml定義体を実行 playbook.yml
+#>     @param {String} $2 対象定義体
+  elif [[ ${cmd} = "play" ]]; then
+    file=$2
+    cd ansible
+    ansible-playbook ./${file}
+#> 無指定はヘルプ
+  else
+    Helps lex
+  fi

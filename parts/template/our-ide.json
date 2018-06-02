@@ -1,0 +1,24 @@
+{
+  "main": [
+    {"title": "キャンセル", "command": ""}
+  ],
+  "ansible": [
+    {"title": "テンプレートをコピーします。(setuo template)", "command": "exe ansible template %{fullpath} noit"},
+    {"title": "hostsを有効にします(setup hosts)", "command": "exe ansible hosts %{fullpath} noit"},
+    {"title": "ssh/configを有効にします(setup ssh)", "command": "exe ansible ssh %{fullpath} noit"},
+    {"title": "すべてのホストをライブチェックします。(ping)", "command": "exe ansible ping %{fullpath} noit"},
+    {"title": "playbookをチェックします。(syntax *.yml)", "command": "exe ansible syntax %{fullpath} noit"},
+    {"title": "playbookを実行します。(play *.yml)", "command": "exe ansible play %{fullpath} noit"},
+    {"title": "キャンセル", "command": ""}
+  ],
+  "menu": [
+    {"path": "/*/*/*/ansible", "menu": "ansible"}
+  ],
+  "path": [
+    {"filter": "/*/*/*/ansible", "command": "exe ansible auto ///%{part3}//%{part5}/ noit"}
+  ],
+  "modifier": [
+    {"filter": "js", "command": "node %{file} %{path}"}
+  ],
+  "automation": false
+}

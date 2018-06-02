@@ -1,0 +1,6 @@
+# example of hosts
+[mgrservers]
+192.168.1.3
+
+[webservers]
+www.webserver.net
