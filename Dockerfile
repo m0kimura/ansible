@@ -13,7 +13,7 @@ RUN echo "### ux-tool ###" \
 RUN echo "### ux-ansible ###" \
 &&  apt-add-repository ppa:ansible/ansible \
 &&  apt-get update \
-&&  apt-get install -y ansible
+&&  apt-get install -y ansible python-pip python-boto python-dev libffi-dev
 #@module ux-close インストール残骸を削除します。
 #@desc ux-toolとペアで使用することを想定してます。
 RUN echo "### ux-close ###" \
