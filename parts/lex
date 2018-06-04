@@ -37,6 +37,37 @@ null=
     file=$2
     cd ansible
     ansible-playbook ./${file}
+    ##
+    ## @description プロジェクトフォルダ直下での実行が前提
+    id=$(aws iam list-account-aliases | jq -r .AccountAliases[0])
+    if [[ ${id} = "$null" ]]; then
+      echo "まず、~/my/conf/「サイトID」.confに認証データを設定してください。"
+      echo "次に、　initialize 「サイトID」してください。"
+      exit 1
+    fi
+
+#> initialize 初期化処理　[confID]/default
+#>   @Parameter {String} $2 confID　~/awslib/{confID}.conf credentials定義
+  elif [[ $cmd = "initialize" ]]; then
+    op=$2
+    cp $HOME/my/conf/${op}.conf ~/.aws/credentials
+    aws iam create-account-alias --account-alias ${op}
+    aws s3 mb s3://formation.${op}
+
+#> now 現在のawsの状態
+  elif [[ $cmd = "now" ]]; then
+    aws iam list-account-aliases | jq -r .AccountAliases[0]
+    echo ---------- EC2 ----------
+    aws ec2 describe-instances
+    echo ---------- S3  ----------
+    aws s3 ls
+
+#> site サイトを指定 siteID
+#>   @Parameter {String} $2 サイトID(my/conf/$2.conf)
+  elif [[ $cmd = "site" ]]; then
+    op=$2
+    cp $HOME/my/conf/${op}.conf ~/.aws/credentials
+    aws iam list-account-aliases | jq -r .AccountAliases[0]
 #> 無指定はヘルプ
   else
     Helps lex
